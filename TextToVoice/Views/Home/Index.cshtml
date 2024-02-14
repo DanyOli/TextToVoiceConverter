@@ -1,0 +1,86 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+<div class="container-fluid mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="text-center mb-4">Text-to-Voice Converter</h2>
+                    <div class="form-group">
+                        <label for="inputText">Enter Your Text:</label>
+                        <textarea id="inputText" class="form-control" rows="4" placeholder="Type your text here" required></textarea>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="language">Select Language:</label>
+                        <select class="form-control" id="language" name="language">
+                            @foreach (var item in ViewBag.LanguageOptions)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label>Gender:</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="male" name="gender" checked>
+                            <label class="form-check-label" for="male">Male</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="female" name="gender">
+                            <label class="form-check-label" for="female">Female</label>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <button id="speakButton" class="btn btn-primary mr-2">Speak</button>
+                        <button id="downloadButton" class="btn btn-secondary">Download</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // When the Speak button is clicked
+        $('#speakButton').click(function () {
+            // Get the input text from the textarea
+            var inputText = $('#inputText').val();
+            var language = $('#language').val();
+            var gender = $('#male:checked').val() == 'on' ? 'male' : 'female';
+
+            // Send the input text to the SpeekTextToSpeech action using AJAX
+            $.ajax({
+                url: '/Home/SpeekTextToSpeech', // Update the URL if your controller is in a different location
+                type: 'POST',
+                data: { inputText, language, gender }, // Pass the input text and language as data
+                success: function (data) {
+                    // Create an audio element and set its source to the base64 audio data
+                    var audio = new Audio('data:audio/wav;base64,' + data);
+                    debugger
+                    // Play & Stop the audio
+                    audio.play();
+                },
+                error: function (xhr, status, error) {
+                    // Handle error
+                    console.error(error);
+                }
+            });
+        });
+
+        $('#downloadButton').click(function () {
+            // Get the input text from the textarea
+            var inputText = $('#inputText').val();
+            var language = $('#language').val();
+            var gender = $('#male:checked').val() == 'on' ? 'male' : 'female';
+            window.location.href = '/home/DownloadTextToSpeech?inputText=' + inputText + "&language=" + language + "&gender=" + gender;
+        });
+    });
+
+
+
+</script>
